@@ -1,0 +1,67 @@
+{
+    "users": [
+      {
+        "id": 1,
+        "name": "John Doe",
+        "availability": [
+          {
+            "date": "2024-09-28",
+            "timeSlots": [
+              { "time": "09:00 AM", "isTaken": false },
+              { "time": "10:00 AM", "isTaken": false },
+              { "time": "11:00 AM", "isTaken": true },
+              { "time": "12:00 PM", "isTaken": false }
+            ]
+          },
+          {
+            "date": "2024-09-29",
+            "timeSlots": [
+              { "time": "10:00 AM", "isTaken": true },
+              { "time": "11:00 AM", "isTaken": false },
+              { "time": "12:00 PM", "isTaken": false }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Jane Smith",
+        "availability": [
+          {
+            "date": "2024-10-03",
+            "timeSlots": [
+              { "time": "09:30 AM", "isTaken": false },
+              { "time": "10:30 AM", "isTaken": true },
+              { "time": "11:30 AM", "isTaken": false }
+            ]
+          }, 
+          {
+            "date": "2024-10-04",
+            "timeSlots": [
+              { "time": "09:00 AM", "isTaken": false },
+              { "time": "10:00 AM", "isTaken": true },
+              { "time": "11:00 AM", "isTaken": false }
+            ]
+          }, 
+          {
+            "date": "2024-10-07",
+            "timeSlots": [
+              { "time": "09:00 AM", "isTaken": false },
+              { "time": "10:00 AM", "isTaken": true },
+              { "time": "11:00 AM", "isTaken": false }
+            ]
+          }, 
+          {
+            "date": "2024-10-12",
+            "timeSlots": [
+              { "time": "09:00 AM", "isTaken": false },
+              { "time": "10:00 AM", "isTaken": true },
+              { "time": "11:00 AM", "isTaken": false }
+            ]
+          }
+          
+        ]
+      }
+    ]
+  }
+  
