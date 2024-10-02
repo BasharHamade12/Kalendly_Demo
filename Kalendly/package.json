@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.1",
     "express": "^4.21.0",
     "gapi-script": "^1.2.0",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
+    "react-google-login": "^5.2.2",
     "react-time-picker": "^7.0.0"
   },
   "devDependencies": {

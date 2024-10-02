@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import usersData from '../../Server/users.json';
+import React from 'react';
 
 interface TimeSlot {
   time: string;
@@ -12,74 +11,87 @@ interface Availability {
 }
 
 interface User {
-  id: number;
+  _id: string;
+  googleId: string;
+  email: string;
   name: string;
+  imageUrl: string;
+  events: any[];
   availability: Availability[];
 }
 
 interface AppointmentSelectorProps {
+  users: User[];
+  currentUser: User | null;
+  selectedUser: User | null;
   onUserSelect: (currentUser: User | null, selectedUser: User | null) => void;
 }
 
-const AppointmentSelector: React.FC<AppointmentSelectorProps> = ({ onUserSelect }) => {
-  const users: User[] = usersData.users;
-
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-
+const AppointmentSelector: React.FC<AppointmentSelectorProps> = ({
+  users,
+  currentUser,
+  selectedUser,
+  onUserSelect
+}) => {
   const handleCurrentUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const userId = Number(event.target.value);
-    setCurrentUserId(userId);
-    const currentUser = users.find(user => user.id === userId) || null;
-    const selectedUser = users.find(user => user.id === selectedUserId) || null;
-    onUserSelect(currentUser, selectedUser);
+    const userId = event.target.value;
+    const newCurrentUser = users.find(user => user._id === userId) || null;
+    onUserSelect(newCurrentUser, selectedUser);
   };
 
   const handleSelectedUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const userId = Number(event.target.value);
-    setSelectedUserId(userId);
-    const currentUser = users.find(user => user.id === currentUserId) || null;
-    const selectedUser = users.find(user => user.id === userId) || null;
-    onUserSelect(currentUser, selectedUser);
+    const userId = event.target.value;
+    const newSelectedUser = users.find(user => user._id === userId) || null;
+    onUserSelect(currentUser, newSelectedUser);
   };
 
   return (
     <div>
       <h2>Select Users for Appointment</h2>
 
-      <label htmlFor="currentUser">Logged-in User: </label>
-      <select id="currentUser" value={currentUserId ?? ''} onChange={handleCurrentUserChange}>
-        <option value="">Select a user</option>
-        {users.map((user) => (
-          <option key={user.id} value={user.id}>
-            {user.name}
-          </option>
-        ))}
-      </select>
-
-      <label htmlFor="selectedUser">Make Appointment with: </label>
-      <select id="selectedUser" value={selectedUserId ?? ''} onChange={handleSelectedUserChange}>
-        <option value="">Select a user</option>
-        {users
-          .filter((user) => user.id !== currentUserId)
-          .map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
+      <div>
+        <label htmlFor="currentUser">Logged-in User: </label>
+        <select 
+          id="currentUser" 
+          value={currentUser?._id || ''} 
+          onChange={handleCurrentUserChange}
+        >
+          <option value="">Select a user</option>
+          {users.map((user) => (
+            <option key={user._id} value={user._id}>
+              {user.name} ({user.email})
             </option>
           ))}
-      </select>
+        </select>
+      </div>
 
       <div>
-        {currentUserId && (
+        <label htmlFor="selectedUser">Make Appointment with: </label>
+        <select 
+          id="selectedUser" 
+          value={selectedUser?._id || ''} 
+          onChange={handleSelectedUserChange}
+        >
+          <option value="">Select a user</option>
+          {users
+            .filter((user) => user._id !== currentUser?._id)
+            .map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name} ({user.email})
+              </option>
+            ))}
+        </select>
+      </div>
+
+      <div>
+        {currentUser && (
           <p>
-            <strong>Logged-in User:</strong>{' '}
-            {users.find((user) => user.id === currentUserId)?.name}
+            <strong>Logged-in User:</strong> {currentUser.name}
           </p>
         )}
-        {selectedUserId && (
+        {selectedUser && (
           <p>
-            <strong>Appointment With:</strong>{' '}
-            {users.find((user) => user.id === selectedUserId)?.name}
+            <strong>Appointment With:</strong> {selectedUser.name}
           </p>
         )}
       </div>
