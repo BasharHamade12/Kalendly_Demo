@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { gapi } from "gapi-script";
-import AppointmentSelector from "./AppointmentSelector";
+import AppointmentSelector from "./AppointmentSelector"; 
+import Calendar  from "react-calendar";
+//import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import MonthlyCalendar from "./components/MonthlyCalendar";
 
 interface TimeSlot {
   time: string;
@@ -18,8 +22,8 @@ interface Event {
   _id: string;
   title: string;
   description: string;
-  start: string;
-  end: string;
+  start: Date;
+  end: Date;
 }
 
 interface User {
@@ -39,7 +43,20 @@ const AppointmentWidget: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedUserEvents, setSelectedUserEvents] = useState<Event[]>([]);
+  const [selectedUserEvent, setSelectedUserEvent] = useState<Event>(); 
+  const [selectedUserDays, setSelectedUserDays] = useState<Event[]>([]); 
+
+  const [date, setDate] = useState(new Date());
+
+  const onChange = (date : any) => { 
+    console.log("date",date)
+    setDate(date)
+  }
+
+  useEffect ( () => {
+    console.log(JSON.stringify(selectedUserEvent)) 
+    
+  },[selectedUserEvent])
 
   useEffect(() => {
     // Initialize Google Calendar API
@@ -83,8 +100,17 @@ const AppointmentWidget: React.FC = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const events = await response.json();
-        setSelectedUserEvents(events);
+        const events = await response.json(); 
+        console.log(events[0].availableDays)
+        // Convert string dates to Date objects
+        const processedEvents = events.map((event: Event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end)
+        }));
+        setSelectedUserEvent(processedEvents[0]);  
+        
+        setSelectedUserDays(processedEvents[0].availableDays)
       } catch (error) {
         console.error('Error fetching user events:', error);
       }
@@ -171,107 +197,40 @@ const AppointmentWidget: React.FC = () => {
     }
   };
 
-  const highlightWithEvents = (date: Date) => {
-    return selectedUserEvents.some(event => 
-      new Date(event.start).toDateString() === date.toDateString()
-    );
-  };
+
 
   return (
     <div className="appointment-widget">
-      <AppointmentSelector 
-        users={users}
-        currentUser={currentUser}
-        selectedUser={selectedUser}
-        onUserSelect={handleUserSelect}
-      />
-      
-      {selectedUser && (
-        <>
-          <h2>Schedule an Appointment with {selectedUser.name}</h2>
+       <AppointmentSelector 
+      users={users}
+      currentUser={currentUser}
+      selectedUser={selectedUser}
+      onUserSelect={handleUserSelect}
+    />  
+    {
+      //<Calendar onChange={onChange} value={date} />
+    }
+    {selectedUser && (
+      <>
+        <h5>Event: {selectedUserEvent?.title}</h5>
+        <MonthlyCalendar/>
+        <pre>
+  {selectedUserDays.map((day, index) => (
+    <div key={index}>{JSON.stringify(day.date)}</div>
+  ))}
+</pre>
+       
+      </>
+    )}
 
-          <div>
-            <label>Select a Date:</label>
-            <DatePicker
-              selected={selectedDate}
-              onChange={handleDateChange}
-              minDate={new Date()}
-              inline
-              highlightDates={selectedUserEvents.map(event => new Date(event.start))}
-              dayClassName={(date: Date) =>
-                highlightWithEvents(date) ? "highlight" : ""
-              }
-              filterDate={(date: Date) => {
-                const formattedDate = date.toISOString().split("T")[0];
-                return selectedUser.availability?.some((a) => a.date === formattedDate) || false;
-              }}
-            />
-          </div>
-
-          {selectedDate && (
-            <div>
-              <h3>Events on {selectedDate.toLocaleDateString()}</h3>
-              {selectedUserEvents
-                .filter(event => new Date(event.start).toDateString() === selectedDate.toDateString())
-                .map(event => (
-                  <div key={event._id} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd' }}>
-                    <strong>{event.title}</strong><br />
-                    {new Date(event.start).toLocaleTimeString()} - {new Date(event.end).toLocaleTimeString()}<br />
-                    {event.description}
-                  </div>
-                ))
-              }
-            </div>
-          )}
-
-          {selectedDate && availableTimeSlots.length > 0 && (
-            <div>
-              <h3>Available Time Slots for {selectedDate.toLocaleDateString()}</h3>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                {availableTimeSlots.map((slot) => (
-                  <button
-                    key={slot.time}
-                    onClick={() => handleTimeSelect(slot.time)}
-                    disabled={slot.isTaken}
-                    style={{
-                      padding: "10px",
-                      border: selectedTime === slot.time ? "2px solid blue" : "1px solid gray",
-                      backgroundColor: slot.isTaken ? "#f5f5f5" : "white",
-                      color: slot.isTaken ? "#a9a9a9" : "black",
-                      cursor: slot.isTaken ? "not-allowed" : "pointer"
-                    }}
-                  >
-                    {slot.time}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {selectedTime && (
-            <div>
-              <h4>Selected Time: {selectedTime}</h4>
-            </div>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            disabled={!selectedDate || !selectedTime}
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              backgroundColor: (!selectedDate || !selectedTime) ? "#cccccc" : "#007bff",
-              color: "white",
-              border: "none",
-              cursor: (!selectedDate || !selectedTime) ? "not-allowed" : "pointer",
-            }}
-          >
-            Confirm Appointment
-          </button>
-        </>
-      )}
+    
     </div>
   );
 };
 
 export default AppointmentWidget;
+
+
+
+
+//Sojamilch!1

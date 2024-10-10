@@ -4,7 +4,8 @@ import Login from './components/Login'
 import Logout from './components/Logout'
 import { useState, useEffect } from 'react'
 import { gapi } from 'gapi-script'
-import CreateEvent from './components/CreateEvent'
+import CreateEvent from './components/CreateEvent' 
+import './AppointmentWidget.css'
 
 const clientId = "468100319032-necjis060o1gmt66hu51srr9nhqbrsfo.apps.googleusercontent.com"
 
@@ -91,11 +92,9 @@ function App() {
     <>
       <Login onLoginSuccess={handleLoginSuccess} />
       <Logout onLogout={handleLogout} /> 
-      {user && <CreateEvent user = {user} />}
-      <AppointmentWidget />
-      
-      {/* Show user info if logged in */}
-      {user && (
+      {user && <CreateEvent user = {user} />} 
+       {/* Show user info if logged in */}
+       {user && (
         <div>
           <h2>Welcome, {user.name}</h2>
           <p>Email: {user.email}</p>
@@ -105,6 +104,9 @@ function App() {
 
       {/* Show message */}
       {message && <p>{message}</p>}
+      <AppointmentWidget />
+      
+     
     </>
   )
 }

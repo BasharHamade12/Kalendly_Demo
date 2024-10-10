@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
+    "date-fns": "^4.1.0",
     "express": "^4.21.0",
     "gapi-script": "^1.2.0",
     "react": "^18.3.1",
+    "react-big-calendar": "^1.15.0",
+    "react-calendar": "^5.0.0",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
     "react-google-login": "^5.2.2",

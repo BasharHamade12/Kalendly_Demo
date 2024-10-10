@@ -1,0 +1,64 @@
+.calendar {
+    width: 80%;
+    margin: 20px auto;
+    text-align: center;
+    background-color: #1e1e2e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden; /* Prevent overflow of elements */
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+  
+  .calendar-header button {
+    background-color: #3a3a4a;
+    border: none;
+    color: #ffffff;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .calendar-header button:hover {
+    background-color: #5a5a6a;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Ensure 7 equal columns */
+    gap: 10px;
+  }
+  
+  .calendar-day,
+  .calendar-header div {
+    padding: 15px;
+    background-color: #2a2a3a;
+    border: 1px solid #3a3a4a;
+    color: #ffffff;
+    text-align: center;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    min-width: 40px; /* Ensure that the cells have a minimum width */
+    min-height: 40px; /* Ensure that the cells have a minimum height */
+    box-sizing: border-box; /* Prevent the padding from adding extra width */
+  }
+  
+  .calendar-day:hover {
+    background-color: #414155;
+    cursor: pointer;
+  }
+  
+  .empty {
+    background-color: transparent;
+    border: none;
+  }
+  

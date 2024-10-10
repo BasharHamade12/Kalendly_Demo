@@ -1,0 +1,7 @@
+/* Add your custom styles for highlighted dates */
+.highlight {
+    background: #ffeb3b; /* Highlight with yellow */
+    color: #000;
+    border-radius: 50%; /* Makes it circular */
+  }
+  
