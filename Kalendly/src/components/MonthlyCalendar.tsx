@@ -31,6 +31,8 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
   const [currentMonth, setCurrentMonth] = useState<number>(initialMonth);
   const [timeSlots, settimeSlots] = useState<any>([]);
 
+  const [selectedDay, setselectedDay] = useState<any>(null);
+
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
 
@@ -79,12 +81,37 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
       console.log(`Matching day found:`, matchingDay);
       //alert(`You clicked on ${clickedDate}, matching day: ${JSON.stringify(matchingDay)}`);
       // Additional logic for the matched day can go here 
-      settimeSlots(matchingDay.timeSlots)
+      settimeSlots(matchingDay.timeSlots) 
+      setselectedDay(matchingDay)
     } else {
       console.log(`No matching day found for ${clickedDate}`);
       alert(`You clicked on ${clickedDate}, but no matching day was found.`);
     }
-  };
+  }; 
+
+  const handleTimeClick = async (time: any) => {
+    alert(time.startTime) 
+    console.log(event._id,selectedDay) 
+    console.log(selectedDay)
+    try {
+        const response = await fetch(`http://localhost:3000/api/events/${event._id}/book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            date: selectedDay,
+            startTime: time.startTime, 
+            userId : "anond"
+          }),
+        });  
+        console.log(response.data)
+    } catch (err) { 
+
+        console.log("the error" , err)
+    }
+
+  }
   
   
 
@@ -139,7 +166,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
               <button
                 onClick={() => {
                   if (!slot.isBooked) {
-                    alert(`You clicked on ${slot.startDate}`);
+                    handleTimeClick(slot) 
                   }
                 }}
                 disabled={slot.isBooked}

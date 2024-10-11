@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/api/users', async (req, res) => {
     try {
       const users = await User.find();
-      console.log('Sending users:', JSON.stringify(users, null, 2)); // Pretty print users for debugging
+     // console.log('Sending users:', JSON.stringify(users, null, 2)); // Pretty print users for debugging
       res.json(users); // Make sure we're sending JSON
     } catch (err) {
       console.error('Error fetching users:', err);
@@ -23,7 +23,7 @@ router.post('/api/auth/google', async (req, res) => {
   try {
     // Check if the user already exists in the database
     let user = await User.findOne({ googleId });
-    console.log(user)
+    // console.log(user)
     if (user) {
       // If the user exists, send the existing user data as a response
       res.status(200).json({ message: 'User already exists', user });

@@ -5,7 +5,10 @@ import Logout from './components/Logout';
 import { useState, useEffect } from 'react';
 import { gapi } from 'gapi-script';
 import CreateEvent from './components/CreateEvent'; 
-import { UserProfile } from './models';
+import { UserProfile } from './models'; 
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useUserStore } from './store';
+
 
 const clientId = '468100319032-necjis060o1gmt66hu51srr9nhqbrsfo.apps.googleusercontent.com';
 
@@ -22,8 +25,11 @@ function ColorModeSwitcher() {
 }
 
 function App() {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  //const [user, setUser] = useState<any>(null);
+  const [message, setMessage] = useState<any>(null); 
+
+  const { user, setUser } = useUserStore();
+
 
   useEffect(() => {
     function start() {
@@ -42,42 +48,15 @@ function App() {
 
   const handleLoginSuccess = async (response: any) => {
     if ('profileObj' in response) {
-      const { googleId, email, name, imageUrl } = response.profileObj;
-
-      try {
-        const res = await fetch('http://localhost:3000/api/auth/google', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ googleId, email, name, imageUrl }),
-        });
-
-        const data = await res.json();
-        console.log(data);
-
-        if (res.status === 200 || res.status === 201) {
-          const { _id, googleId, email, name, imageUrl, givenName, familyName } = data.user;
-          setUser({ _id, googleId, imageUrl, email, name, givenName, familyName });
-        }
-
-        if (res.status === 201) {
-          setMessage(`New user created: ${name}`);
-        } else if (res.status === 200) {
-          setMessage(`Welcome back, ${name}!`);
-        } else {
-          setMessage('Error during authentication.');
-        }
-      } catch (error) {
-        console.error('Error saving user data:', error);
-        setMessage('Error connecting to the server.');
-      }
+      // Existing login logic 
+      console.log(response.profileObj) 
+      setUser(response.profileObj)
     }
   };
 
   const handleLoginFailure = (error: any) => {
     console.error('Login failed:', error);
-    setMessage('Login failed. Please try again.');
+    setMessage('Login failed. Please try again.'); 
   };
 
   const handleLogout = () => {
@@ -86,51 +65,44 @@ function App() {
     console.log('User logged out');
   };
 
-  // Use `useColorModeValue` to adapt colors to dark or light modes with a darker violet vibe
-  const bgColor = useColorModeValue('gray.100', 'gray.900'); // Light mode bg: gray.100, Dark mode bg: purple.900
-  const textColor = useColorModeValue('gray.800', 'purple.100'); // Light mode text: gray.800, Dark mode text: purple.100
+  const bgColor = useColorModeValue('gray.100', 'gray.900');
+  const textColor = useColorModeValue('gray.800', 'purple.100');
 
   return (
-    <Box p={6} bg={bgColor} minHeight="100vh" color={textColor}>
-      {/* Display login or logout buttons */} 
-      {ColorModeSwitcher()}
-      <Flex justify="space-between" align="center" mb={6}>
-        <Login onLoginSuccess={handleLoginSuccess} />
-        <Logout onLogout={handleLogout} />
-      </Flex>
+    <Router>
+      <Box p={6} bg={bgColor} minHeight="100vh" color={textColor}>
+        {ColorModeSwitcher()}
+        <Flex justify="space-between" align="center" mb={6}>
+          <Login onLoginSuccess={handleLoginSuccess} />
+          <Logout onLogout={handleLogout} />
+        </Flex>
 
-      {/* Show user info if logged in */}
-      {user && (
-        <Box textAlign="center" mb={6}>
-          <Heading size="lg" mb={4}>
-            Welcome, {user.name}
-          </Heading>
-          <Text>Email: {user.email}</Text>
-          <Image
-            src={user.imageUrl}
-            alt="Profile"
-            borderRadius="full"
-            boxSize="100px"
-            mt={4}
-            mx="auto"
-          />
-        </Box>
-      )}
+        {user && (
+          <Box textAlign="center" mb={6}>
+            <Heading size="lg" mb={4}>Welcome, {user.name}</Heading>
+            <Text>Email: {user.email}</Text>
+            <Image src={user.imageUrl} alt="Profile" borderRadius="full" boxSize="100px" mt={4} mx="auto" />
+          </Box>
+        )}
 
-      {/* Show message */}
-      {message && (
-        <Box mb={6} textAlign="center">
-          <Text color="teal.500" fontSize="lg">
-            {message}
-          </Text>
-        </Box>
-      )}
+        {message && (
+          <Box mb={6} textAlign="center">
+            <Text color="teal.500" fontSize="lg">{message}</Text>
+          </Box>
+        )}
 
-      {/* Display AppointmentWidget and CreateEvent */}
-      {user && <CreateEvent user={user} />}
-      <AppointmentWidget />
-    </Box>
+        <Routes>
+          {/* Define the route for AppointmentWidget */}
+          <Route path="/appointment/:creatorName/:eventName" element={<AppointmentWidget />} />
+
+          
+          {/* You can define other routes here */}
+          <Route path="/" element={user ? <CreateEvent user={user} /> : <Text>Welcome! Please log in.</Text>} />
+        </Routes>
+      </Box>
+    </Router>
   );
 }
+
 
 export default App;
