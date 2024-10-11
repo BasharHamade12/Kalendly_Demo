@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import "./MonthlyCalendar.css"
+import './MonthlyCalendar.css';
 
-interface CalendarProps {
-  initialYear?: number;
-  initialMonth?: number;
+interface MonthlyCalendarProps {
+  event: any;
+  days: any;
 }
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -16,12 +16,20 @@ const getFirstDayOfMonth = (year: number, month: number): number => {
   return new Date(year, month, 1).getDay();
 };
 
-const MonthlyCalendar: React.FC<CalendarProps> = ({
-  initialYear = new Date().getFullYear(),
-  initialMonth = new Date().getMonth(),
-}) => {
+const isSameDay = (date1: Date, date2: Date) => {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
+
+const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
+  const initialYear = new Date().getFullYear();
+  const initialMonth = new Date().getMonth();
   const [currentYear, setCurrentYear] = useState<number>(initialYear);
   const [currentMonth, setCurrentMonth] = useState<number>(initialMonth);
+  const [timeSlots, settimeSlots] = useState<any>([]);
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
@@ -51,8 +59,39 @@ const MonthlyCalendar: React.FC<CalendarProps> = ({
     });
   };
 
-  return (
-    <div className="calendar">
+  // Check if a given day should be highlighted
+  const shouldHighlightDay = (day: number) => {
+    const currentDate = new Date(currentYear, currentMonth, day);
+    return days.some((dayObj) => isSameDay(new Date(dayObj.date), currentDate));
+  };
+
+  const handleDayClick = (day: number) => {
+    // Create the clicked date in local format (YYYY-MM-DD)
+    const clickedDate = new Date(currentYear, currentMonth, day).toLocaleDateString('en-CA');
+  
+    // Find the matching day in the 'days' array (ignore time by using local date format)
+    const matchingDay = days.find((dayObj) => {
+      const dayDate = new Date(dayObj.date).toLocaleDateString('en-CA');
+      return dayDate === clickedDate;
+    });
+  
+    if (matchingDay) {
+      console.log(`Matching day found:`, matchingDay);
+      //alert(`You clicked on ${clickedDate}, matching day: ${JSON.stringify(matchingDay)}`);
+      // Additional logic for the matched day can go here 
+      settimeSlots(matchingDay.timeSlots)
+    } else {
+      console.log(`No matching day found for ${clickedDate}`);
+      alert(`You clicked on ${clickedDate}, but no matching day was found.`);
+    }
+  };
+  
+  
+
+  return ( 
+    <>
+    <div className="calendar"> 
+      
       <div className="calendar-header">
         <button onClick={goToPreviousMonth}>&lt;</button>
         <h2>
@@ -73,12 +112,56 @@ const MonthlyCalendar: React.FC<CalendarProps> = ({
           <div key={`blank-${idx}`} className="calendar-day empty"></div>
         ))}
         {daysArray.map((day) => (
-          <div key={day} className="calendar-day">
+          <div
+            key={day}
+            className={`calendar-day ${shouldHighlightDay(day) ? 'highlight' : ''}`}
+            onClick={() => {
+                if (shouldHighlightDay(day)) {
+                  handleDayClick(day);
+                } else {
+                  // Replace 'setCertainState' with your actual state-setting function
+                  settimeSlots([]);
+                }
+              }}// Attach click handler
+          >
             {day}
           </div>
-        ))}
+        ))} 
+
       </div>
+    </div> 
+
+    <div>
+      {timeSlots.length > 0 && (
+        <ul>
+          {timeSlots.map((slot, index) => ( 
+            <li key={index}>
+              <button
+                onClick={() => {
+                  if (!slot.isBooked) {
+                    alert(`You clicked on ${slot.startDate}`);
+                  }
+                }}
+                disabled={slot.isBooked}
+                style={{
+                  backgroundColor: slot.isBooked ? '#d3d3d3' : '#4CAF50', // Booked: grey, Available: green
+                  cursor: slot.isBooked ? 'not-allowed' : 'pointer', // Change cursor for booked slots
+                  color: '#fff',
+                  padding: '10px',
+                  margin: '5px',
+                  border: 'none',
+                  borderRadius: '5px'
+                }}
+              >
+                {slot.startTime}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
+
+    </>
   );
 };
 

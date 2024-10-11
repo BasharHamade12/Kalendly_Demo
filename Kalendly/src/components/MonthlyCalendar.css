@@ -60,5 +60,9 @@
   .empty {
     background-color: transparent;
     border: none;
+  } 
+
+  .calendar-day.highlight {
+    background-color: rgb(100, 182, 236); /* Or any other bright color */
   }
   

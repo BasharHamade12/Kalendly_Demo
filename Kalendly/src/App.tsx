@@ -1,27 +1,28 @@
-import './App.css'
-import AppointmentWidget from './AppointmentWidget'
-import Login from './components/Login'
-import Logout from './components/Logout'
-import { useState, useEffect } from 'react'
-import { gapi } from 'gapi-script'
-import CreateEvent from './components/CreateEvent' 
-import './AppointmentWidget.css'
+import { Box, Heading, Text, Image, Flex, useColorModeValue } from '@chakra-ui/react';
+import AppointmentWidget from './AppointmentWidget';
+import Login from './components/Login';
+import Logout from './components/Logout';
+import { useState, useEffect } from 'react';
+import { gapi } from 'gapi-script';
+import CreateEvent from './components/CreateEvent'; 
+import { UserProfile } from './models';
 
-const clientId = "468100319032-necjis060o1gmt66hu51srr9nhqbrsfo.apps.googleusercontent.com"
+const clientId = '468100319032-necjis060o1gmt66hu51srr9nhqbrsfo.apps.googleusercontent.com';
 
-interface UserProfile {
-  _id: string; // Add the database _id
-  googleId: string;
-  imageUrl: string;
-  email: string;
-  name: string;
-  givenName: string;
-  familyName: string;
+
+import { Button, useColorMode } from '@chakra-ui/react';
+
+function ColorModeSwitcher() {
+  const { colorMode, toggleColorMode } = useColorMode();
+  return (
+    <Button onClick={toggleColorMode} mt={4}>
+      Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
+    </Button>
+  );
 }
 
-
 function App() {
-  const [user, setUser] = useState<UserProfile | null>(null);  // UserProfile type or null
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,17 +33,17 @@ function App() {
       });
     }
 
-    gapi.load("client:auth2", start);
+    gapi.load('client:auth2', start);
   }, []);
-  useEffect(() => {
-    console.log(user)
-  }, [user]); 
 
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   const handleLoginSuccess = async (response: any) => {
     if ('profileObj' in response) {
       const { googleId, email, name, imageUrl } = response.profileObj;
-      
+
       try {
         const res = await fetch('http://localhost:3000/api/auth/google', {
           method: 'POST',
@@ -51,17 +52,15 @@ function App() {
           },
           body: JSON.stringify({ googleId, email, name, imageUrl }),
         });
-  
+
         const data = await res.json();
         console.log(data);
-  
-        // Save the user in the state, including the _id from the database
+
         if (res.status === 200 || res.status === 201) {
-          const { _id, googleId, email, name, imageUrl , givenName, familyName } = data.user;
-          setUser({ _id, googleId, imageUrl , email, name, givenName, familyName }); // Include _id in the state
+          const { _id, googleId, email, name, imageUrl, givenName, familyName } = data.user;
+          setUser({ _id, googleId, imageUrl, email, name, givenName, familyName });
         }
-  
-        // Set message based on status
+
         if (res.status === 201) {
           setMessage(`New user created: ${name}`);
         } else if (res.status === 200) {
@@ -75,7 +74,6 @@ function App() {
       }
     }
   };
-  
 
   const handleLoginFailure = (error: any) => {
     console.error('Login failed:', error);
@@ -83,32 +81,56 @@ function App() {
   };
 
   const handleLogout = () => {
-    setUser(null);  // Clear user state on logout
-    setMessage(null);  // Clear message on logout
+    setUser(null);
+    setMessage(null);
     console.log('User logged out');
   };
 
+  // Use `useColorModeValue` to adapt colors to dark or light modes with a darker violet vibe
+  const bgColor = useColorModeValue('gray.100', 'gray.900'); // Light mode bg: gray.100, Dark mode bg: purple.900
+  const textColor = useColorModeValue('gray.800', 'purple.100'); // Light mode text: gray.800, Dark mode text: purple.100
+
   return (
-    <>
-      <Login onLoginSuccess={handleLoginSuccess} />
-      <Logout onLogout={handleLogout} /> 
-      {user && <CreateEvent user = {user} />} 
-       {/* Show user info if logged in */}
-       {user && (
-        <div>
-          <h2>Welcome, {user.name}</h2>
-          <p>Email: {user.email}</p>
-          <img src={user.imageUrl} alt="Profile" />
-        </div>
+    <Box p={6} bg={bgColor} minHeight="100vh" color={textColor}>
+      {/* Display login or logout buttons */} 
+      {ColorModeSwitcher()}
+      <Flex justify="space-between" align="center" mb={6}>
+        <Login onLoginSuccess={handleLoginSuccess} />
+        <Logout onLogout={handleLogout} />
+      </Flex>
+
+      {/* Show user info if logged in */}
+      {user && (
+        <Box textAlign="center" mb={6}>
+          <Heading size="lg" mb={4}>
+            Welcome, {user.name}
+          </Heading>
+          <Text>Email: {user.email}</Text>
+          <Image
+            src={user.imageUrl}
+            alt="Profile"
+            borderRadius="full"
+            boxSize="100px"
+            mt={4}
+            mx="auto"
+          />
+        </Box>
       )}
 
       {/* Show message */}
-      {message && <p>{message}</p>}
+      {message && (
+        <Box mb={6} textAlign="center">
+          <Text color="teal.500" fontSize="lg">
+            {message}
+          </Text>
+        </Box>
+      )}
+
+      {/* Display AppointmentWidget and CreateEvent */}
+      {user && <CreateEvent user={user} />}
       <AppointmentWidget />
-      
-     
-    </>
-  )
+    </Box>
+  );
 }
 
 export default App;

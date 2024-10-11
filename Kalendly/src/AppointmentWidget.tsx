@@ -7,36 +7,17 @@ import Calendar  from "react-calendar";
 //import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import MonthlyCalendar from "./components/MonthlyCalendar";
+import {User,TimeSlot,Availability,Event} from "./models.ts"
 
-interface TimeSlot {
-  time: string;
-  isTaken: boolean;
-}
 
-interface Availability {
-  date: string;
-  timeSlots: TimeSlot[];
-}
 
-interface Event {
-  _id: string;
-  title: string;
-  description: string;
-  start: Date;
-  end: Date;
-}
 
-interface User {
-  _id: string;
-  googleId: string;
-  email: string;
-  name: string;
-  imageUrl: string;
-  events: Event[];
-  availability: Availability[];
-}
 
-const AppointmentWidget: React.FC = () => {
+
+const AppointmentWidget: React.FC = () => { 
+
+
+
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -101,16 +82,16 @@ const AppointmentWidget: React.FC = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const events = await response.json(); 
-        console.log(events[0].availableDays)
+        console.log(events)
         // Convert string dates to Date objects
         const processedEvents = events.map((event: Event) => ({
           ...event,
           start: new Date(event.start),
           end: new Date(event.end)
         }));
-        setSelectedUserEvent(processedEvents[0]);  
+        setSelectedUserEvent(processedEvents[1]);  
         
-        setSelectedUserDays(processedEvents[0].availableDays)
+        setSelectedUserDays(processedEvents[1].availableDays)
       } catch (error) {
         console.error('Error fetching user events:', error);
       }
@@ -213,12 +194,12 @@ const AppointmentWidget: React.FC = () => {
     {selectedUser && (
       <>
         <h5>Event: {selectedUserEvent?.title}</h5>
-        <MonthlyCalendar/>
+        <MonthlyCalendar event = {selectedUserEvent} days = {selectedUserDays} />
         <pre>
-  {selectedUserDays.map((day, index) => (
-    <div key={index}>{JSON.stringify(day.date)}</div>
-  ))}
-</pre>
+          {/*selectedUserDays.map((day, index) => (
+            <div key={index}>{JSON.stringify(day.date)}</div>
+          ))*/}
+        </pre>
        
       </>
     )}
