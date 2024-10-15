@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+ const mongoose = require('mongoose');
 
 // Assume you have a User model already defined
 const User = require('./User'); // Adjust the path as necessary

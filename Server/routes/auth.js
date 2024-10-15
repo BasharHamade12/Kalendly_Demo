@@ -7,13 +7,22 @@ const router = express.Router();
 router.get('/api/users', async (req, res) => {
     try {
       const users = await User.find();
-     // console.log('Sending users:', JSON.stringify(users, null, 2)); // Pretty print users for debugging
+     // console.log('Sending users:', JSON.stringify(users, null, 2)); // Pretty print users for debugging 
+      console.log(users)
       res.json(users); // Make sure we're sending JSON
     } catch (err) {
       console.error('Error fetching users:', err);
       res.status(500).json({ error: 'Failed to fetch users' });
     }
-  });
+  }); 
+
+  router.get('/api/users/google/:googleId', async (req,res) => { 
+    let {googleId } = req.params
+    let user = await User.findOne({googleId });  
+    console.log(user)
+    res.json(user)
+
+  } )
   
 
 // Route to receive user data from frontend Google login

@@ -120,18 +120,13 @@ const AppointmentWidget: React.FC = () => {
 
   return (
     <div className="appointment-widget">
-       <AppointmentSelector 
-      users={users}
-      currentUser={currentUser}
-      selectedUser={selectedUser}
-      onUserSelect={handleUserSelect}
-    />  
+     <h1><pre>Event: {selectedUserEvent?.title}</pre></h1>
     {
       //<Calendar onChange={onChange} value={date} />
     }
     {(
       <>
-        <h5>Event: {selectedUserEvent?.title}</h5>
+        
         <MonthlyCalendar event = {selectedUserEvent} days = {selectedUserDays} />
         <pre>
           {/*selectedUserDays.map((day, index) => (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './MonthlyCalendar.css';
+import { json } from 'react-router-dom';
 
 interface MonthlyCalendarProps {
   event: any;
@@ -90,7 +91,9 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
   }; 
 
   const handleTimeClick = async (time: any) => {
-    alert(time.startTime) 
+    alert(time.startTime)  
+    let target_id = time._id;
+    console.log(target_id)
     console.log(event._id,selectedDay) 
     console.log(selectedDay)
     try {
@@ -105,7 +108,23 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
             userId : "anond"
           }),
         });  
-        console.log(response.data)
+        console.log(response) 
+        settimeSlots(prevArray => {
+          console.log("Previous Array:", prevArray);
+          const updatedArray = prevArray.map(element => {
+            console.log("Checking element:", element); 
+            console.log("target id", target_id) 
+            //console.log("target id", target_id === element)
+            if (element._id === target_id) {
+              console.log("Match found, updating element:", element);
+              return { ...element, isAvailable: false };
+            }
+            return element;
+          });
+          console.log("Updated Array:", updatedArray);
+          return updatedArray;
+        });
+        
     } catch (err) { 
 
         console.log("the error" , err)
@@ -169,17 +188,18 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({ event, days }) => {
                     handleTimeClick(slot) 
                   }
                 }}
-                disabled={slot.isBooked}
+                disabled={!slot.isAvailable}
                 style={{
-                  backgroundColor: slot.isBooked ? '#d3d3d3' : '#4CAF50', // Booked: grey, Available: green
-                  cursor: slot.isBooked ? 'not-allowed' : 'pointer', // Change cursor for booked slots
+                  backgroundColor: !slot.isAvailable ? '#d3d3d3' : '#4CAF50', // Booked: grey, Available: green
+                  cursor: !slot.isAvailable ? 'not-allowed' : 'pointer', // Change cursor for booked slots
                   color: '#fff',
                   padding: '10px',
                   margin: '5px',
                   border: 'none',
                   borderRadius: '5px'
                 }}
-              >
+              > 
+                {console.log(JSON.stringify(slot.isAvailable))}
                 {slot.startTime}
               </button>
             </li>

@@ -91,7 +91,7 @@ router.post('/api/events/:eventId/book', async (req, res) => {
     if (!timeSlot.isAvailable) {
       return res.status(400).json({ message: 'Time slot is already booked' });
     }
-
+    console.log(timeSlot)
     // Update the time slot
     timeSlot.isAvailable = false;
     //timeSlot.bookedBy = userId; 

@@ -20,7 +20,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   return (
     <div>
       <GoogleLogin
-        clientId="your-client-id"
+        clientId="468100319032-necjis060o1gmt66hu51srr9nhqbrsfo.apps.googleusercontent.com"
         buttonText="Login"
         onSuccess={handleLoginSuccess}
         onFailure={handleLoginFailure}
